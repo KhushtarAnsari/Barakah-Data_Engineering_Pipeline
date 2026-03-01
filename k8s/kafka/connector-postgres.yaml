@@ -1,0 +1,22 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: postgres-users-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: debezium-connect
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  config:
+    database.hostname: postgres.data-sources.svc.cluster.local
+    database.port: "5432"
+    database.user: postgres
+    database.password: postgres
+    database.dbname: postgres
+    database.server.name: postgres
+    topic.prefix: postgres
+    table.include.list: public.users
+    plugin.name: pgoutput
+    slot.name: debezium_users
+    publication.name: dbz_publication

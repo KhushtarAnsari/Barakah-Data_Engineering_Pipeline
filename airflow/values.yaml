@@ -1,0 +1,72 @@
+# Airflow Helm values for Kind deployment
+# Install: helm upgrade --install airflow apache-airflow/airflow -n airflow --create-namespace -f airflow/values.yaml
+
+executor: "LocalExecutor"
+
+# Triggerer not needed for our DAGs
+triggerer:
+  enabled: false
+
+# DAG processor required in Airflow 3 to parse DAG files and sync to DB (scheduler alone won't list DAGs)
+dagProcessor:
+  enabled: true
+
+# Give api-server and scheduler more time to pass startup (avoids Progress deadline exceeded)
+apiServer:
+  startupProbe:
+    failureThreshold: 24
+    periodSeconds: 10
+  livenessProbe:
+    failureThreshold: 5
+  readinessProbe:
+    failureThreshold: 5
+scheduler:
+  startupProbe:
+    failureThreshold: 30
+    periodSeconds: 10
+
+config:
+  core:
+    load_examples: "False"
+    dags_folder: /opt/airflow/dags
+
+env:
+  - name: AIRFLOW__CORE__LOAD_EXAMPLES
+    value: "False"
+  - name: AIRFLOW__CORE__DAGS_FOLDER
+    value: "/opt/airflow/dags"
+  # ClickHouse: set host to your CH service (e.g. after CHI is deployed, get svc name in clickhouse namespace)
+  - name: AIRFLOW_CONN_CLICKHOUSE_DEFAULT
+    value: "clickhouse://default:default@clickhouse-analytics.clickhouse.svc.cluster.local:8123/default"
+
+# Use PostgreSQL for metadata (we already have Postgres in data-sources, or use built-in)
+# Default chart uses a separate postgres; for simplicity we keep default or point to our postgres.
+# postgresql:
+#   enabled: true
+#   auth:
+#     username: postgres
+#     password: postgres
+
+# Add ClickHouse provider
+pipPackages:
+  - apache-airflow-providers-clickhouse
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 1Gi
+  requests:
+    cpu: "256m"
+    memory: 512Mi
+
+workers:
+  resources:
+    limits:
+      cpu: "500m"
+      memory: 512Mi
+
+dags:
+  persistence:
+    enabled: true
+    size: 1Gi
+# After install, copy DAG: kubectl cp airflow/dags/gold_user_activity_dag.py airflow/<scheduler-pod>:/opt/airflow/dags/ -n airflow

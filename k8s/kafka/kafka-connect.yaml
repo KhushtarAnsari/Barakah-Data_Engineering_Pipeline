@@ -1,0 +1,36 @@
+# Kafka Connect with Debezium connectors (PostgreSQL + MongoDB)
+# Uses Strimzi-based image (build with ./scripts/build-connect-image.sh) so pod has kafka_connect_run.sh
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-connect
+  namespace: kafka
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 4.1.0
+  replicas: 1
+  image: debezium-connect:4.1.0
+  bootstrapServers: data-engineering-kafka-kafka-bootstrap.kafka.svc.cluster.local:9092
+  config:
+    group.id: debezium-connect
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    config.storage.replication.factor: 1
+    offset.storage.replication.factor: 1
+    status.storage.replication.factor: 1
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+  jvmOptions:
+    "-Xms": "256m"
+    "-Xmx": "768m"
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 200m
+    limits:
+      memory: 2Gi
+      cpu: 1000m

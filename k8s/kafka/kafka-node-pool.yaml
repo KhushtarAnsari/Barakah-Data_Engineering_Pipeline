@@ -1,0 +1,16 @@
+# KafkaNodePool for data-engineering-kafka (required when strimzi.io/node-pools: enabled)
+# Single pool: 1 node with broker+controller roles, ephemeral storage
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: pool-a
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: data-engineering-kafka
+spec:
+  replicas: 1
+  roles:
+    - broker
+    - controller
+  storage:
+    type: ephemeral

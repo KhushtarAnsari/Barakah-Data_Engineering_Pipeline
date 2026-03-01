@@ -1,0 +1,29 @@
+# IDE / editor
+.idea/
+.vscode/
+.cursor/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.local
+*.pem
+
+# Kind / kube
+kubeconfig*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Logs
+*.log
+logs/

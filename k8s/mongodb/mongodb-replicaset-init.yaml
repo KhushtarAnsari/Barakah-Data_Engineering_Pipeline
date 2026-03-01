@@ -1,0 +1,26 @@
+# Run once after MongoDB is ready to enable change streams (required by Debezium).
+# kubectl apply -f k8s/mongodb/mongodb-replicaset-init.yaml
+# Then: kubectl wait --for=condition=complete job/mongodb-replicaset-init -n data-sources --timeout=60s
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-replicaset-init
+  namespace: data-sources
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: init
+          image: mongo:6
+          command:
+            - mongosh
+            - --host
+            - mongodb.data-sources.svc.cluster.local
+            - --eval
+            - |
+              rs.initiate({
+                _id: "rs0",
+                members: [{ _id: 0, host: "mongodb.data-sources.svc.cluster.local:27017" }]
+              });

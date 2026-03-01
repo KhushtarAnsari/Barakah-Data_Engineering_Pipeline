@@ -1,0 +1,15 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: mongodb-events-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: debezium-connect
+spec:
+  class: io.debezium.connector.mongodb.MongoDbConnector
+  tasksMax: 1
+  config:
+    mongodb.connection.string: mongodb://mongodb.data-sources.svc.cluster.local:27017/?replicaSet=rs0
+    database.include.list: commerce
+    collection.include.list: commerce.events
+    topic.prefix: mongo
