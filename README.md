@@ -142,8 +142,6 @@ Then apply ClickHouse schema (step 4 above with `--user=default --password=defau
 - Airflow: one DAG (`gold_user_activity_daily`) and Helm values
 - README with setup and run instructions
 
-Push to a public Git repository and share the link as required.
-
 ## License
 
 MIT
